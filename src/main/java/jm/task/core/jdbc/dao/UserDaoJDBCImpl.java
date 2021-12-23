@@ -1,10 +1,11 @@
 package jm.task.core.jdbc.dao;
 
-import com.mysql.jdbc.PreparedStatement;
+import com.mysql.cj.xdevapi.Statement;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable()  {
         try (Connection connection = Util.getConnection();
-             PreparedStatement preparedStatement = (PreparedStatement) connection.prepareStatement(CREATE_TABLE)) {
+             PreparedStatement preparedStatement = (PreparedStatement) connection.prepareStatement(CLEAR_TABLE)) {
             ResultSet rs = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -74,7 +75,7 @@ public class UserDaoJDBCImpl implements UserDao {
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                long id = rs.getLong(1);
+                long id = rs.getLong("id");
                 String name = rs.getString("name");
                 String lastName = rs.getString("lastName");
                 byte age = rs.getByte("age");

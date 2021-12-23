@@ -14,6 +14,10 @@
           <node kind="schema" qname="test" />
         </introspection-scope>
       </schema-mapping>
+      <ssl-config>
+        <enabled>true</enabled>
+        <mode>REQUIRE</mode>
+      </ssl-config>
     </data-source>
   </component>
 </project>
