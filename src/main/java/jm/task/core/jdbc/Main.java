@@ -10,6 +10,8 @@ public class Main {
     public static void main(String[] args) {
         UserService userService = new UserServiceImpl();
 
+        userService.createUsersTable();
+
         User user1 = new User("Andrey", "Akinchev", (byte) 10);
         userService.saveUser(user1.getName(), user1.getLastName(), user1.getAge());
         System.out.println("User с именем – " + user1.getName() + " добавлен в базу данных");
