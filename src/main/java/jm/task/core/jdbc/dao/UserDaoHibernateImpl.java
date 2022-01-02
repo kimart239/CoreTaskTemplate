@@ -6,42 +6,39 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS user (id BIGINT NOT NULL " +
-            "PRIMARY KEY AUTO_INCREMENT, " +
-            "name VARCHAR(45)," +
-            "lastName VARCHAR (80), age INT) ";
-    private static final String DROP_TABLE = "DROP TABLE IF EXISTS user";
 
-
-    public UserDaoHibernateImpl() {
-
-    }
-
+    public UserDaoHibernateImpl() { }
 
     @Override
     public void createUsersTable() {
         try (Session session = Util.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
+            String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                    "user (id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                    "name VARCHAR(45), lastName VARCHAR (80), age INT) ";
 
-            Query query = session.createQuery(CREATE_TABLE, User.class);
+            Query query = session.createNativeQuery(CREATE_TABLE, User.class);
             query.executeUpdate();
 
             transaction.commit();
         }catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     public void dropUsersTable() {
         try (Session session = Util.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
+            String DROP_TABLE = "DROP TABLE IF EXISTS user";
 
-            Query query = session.createQuery(DROP_TABLE, User.class);
+            Query query = session.createNativeQuery(DROP_TABLE, User.class);
             query.executeUpdate();
 
             transaction.commit();
@@ -64,7 +61,7 @@ public class UserDaoHibernateImpl implements UserDao {
             // save student object
             session.save(new User (name, lastName, age));
 
-            // commit transction
+            // commit transaction
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -86,7 +83,7 @@ public class UserDaoHibernateImpl implements UserDao {
             User user = session.get(User.class, id);
             session.delete(user);
 
-            // commit transction
+            // commit transaction
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -99,13 +96,45 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         try (Session session = Util.getSessionFactory().openSession()) {
-            return session.createQuery("Select i from User i", User.class).getResultList();
+            return (List<User>) session.createQuery("Select i from User i", User.class).getResultList();
         }
     }
 
     @Override
     public void cleanUsersTable() {
+        Transaction transaction = null;
+        List<User> list = new ArrayList<>();
 
+        // auto close session object
+        try (Session session = Util.getSessionFactory().openSession()) {
+
+            // start the transaction
+            transaction = session.beginTransaction();
+            
+            // Create CriteriaBuilder
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+
+            // Create CriteriaQuery
+            CriteriaQuery<User> criteria = builder.createQuery(User.class);
+
+            // Specify criteria root
+            criteria.from(User.class);
+
+            // Execute query
+            list = session.createQuery(criteria).getResultList();
+
+            for (User user : list) {
+                session.delete(user);
+                session.flush();
+            }
+
+            // commit transaction
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
 
     }
 }
