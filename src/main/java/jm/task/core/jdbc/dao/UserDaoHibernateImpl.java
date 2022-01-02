@@ -6,10 +6,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.criteria.*;
+import java.util.*;
 
 public class UserDaoHibernateImpl implements UserDao {
 
@@ -23,7 +21,7 @@ public class UserDaoHibernateImpl implements UserDao {
                     "user (id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                     "name VARCHAR(45), lastName VARCHAR (80), age INT) ";
 
-            Query query = session.createNativeQuery(CREATE_TABLE, User.class);
+            Query<User> query = session.createNativeQuery(CREATE_TABLE, User.class);
             query.executeUpdate();
 
             transaction.commit();
@@ -38,14 +36,13 @@ public class UserDaoHibernateImpl implements UserDao {
             Transaction transaction = session.beginTransaction();
             String DROP_TABLE = "DROP TABLE IF EXISTS user";
 
-            Query query = session.createNativeQuery(DROP_TABLE, User.class);
+            Query<User> query = session.createNativeQuery(DROP_TABLE, User.class);
             query.executeUpdate();
 
             transaction.commit();
         }catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -68,7 +65,6 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             }
         }
-
     }
 
     @Override
@@ -90,20 +86,19 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             }
         }
-
     }
 
     @Override
     public List<User> getAllUsers() {
         try (Session session = Util.getSessionFactory().openSession()) {
-            return (List<User>) session.createQuery("Select i from User i", User.class).getResultList();
+            return session.createQuery("Select i from User i", User.class).getResultList();
         }
     }
 
     @Override
     public void cleanUsersTable() {
         Transaction transaction = null;
-        List<User> list = new ArrayList<>();
+        List<User> list;
 
         // auto close session object
         try (Session session = Util.getSessionFactory().openSession()) {
