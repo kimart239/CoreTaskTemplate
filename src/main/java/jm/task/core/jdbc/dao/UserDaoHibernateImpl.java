@@ -21,7 +21,7 @@ public class UserDaoHibernateImpl implements UserDao {
                     "user (id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                     "name VARCHAR(45), lastName VARCHAR (80), age INT) ";
 
-            Query<User> query = session.createNativeQuery(CREATE_TABLE, User.class);
+            Query query = session.createSQLQuery(CREATE_TABLE).addEntity(User.class);
             query.executeUpdate();
 
             transaction.commit();
@@ -36,7 +36,7 @@ public class UserDaoHibernateImpl implements UserDao {
             Transaction transaction = session.beginTransaction();
             String DROP_TABLE = "DROP TABLE IF EXISTS user";
 
-            Query<User> query = session.createNativeQuery(DROP_TABLE, User.class);
+            Query query = session.createSQLQuery(DROP_TABLE).addEntity(User.class);
             query.executeUpdate();
 
             transaction.commit();
@@ -48,6 +48,8 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void saveUser(String name, String lastName, byte age) {
         Transaction transaction = null;
+        User user = new User(name, lastName, age);
+
 
         // auto close session object
         try (Session session = Util.getSessionFactory().openSession()) {
@@ -56,7 +58,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
 
             // save student object
-            session.save(new User (name, lastName, age));
+            session.save(user);
 
             // commit transaction
             transaction.commit();

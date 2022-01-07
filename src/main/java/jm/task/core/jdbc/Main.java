@@ -15,7 +15,6 @@ public class Main {
         User user1 = new User("Andrey", "Akinchev", (byte) 10);
         userService.saveUser(user1.getName(), user1.getLastName(), user1.getAge());
         System.out.println("User с именем – " + user1.getName() + " добавлен в базу данных");
-
         User user2 = new User("Boris", "Bragin", (byte) 20);
         userService.saveUser(user2.getName(), user2.getLastName(), user2.getAge());
         System.out.println("User с именем – " + user2.getName() + " добавлен в базу данных");
@@ -32,6 +31,6 @@ public class Main {
 
         userService.cleanUsersTable();
 
-        userService.dropUsersTable();
+       userService.dropUsersTable();
     }
 }
